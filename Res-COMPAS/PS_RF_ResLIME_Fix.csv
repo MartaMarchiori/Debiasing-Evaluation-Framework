@@ -1,0 +1,5 @@
+,clfOrig-clfOrigBlind,clfMit-clfMitBlind,clfOrig-clfMit,clfOrigBlind-clfMitBlind
+SA-Sum,0.559,0.631,0.381,0.126
+SA-Mean,0.02,0.013,0.028,0.008
+NSA-Sum,15.073,17.04,15.542,16.571
+NSA-Mean,0.015,0.015,0.012,0.016
