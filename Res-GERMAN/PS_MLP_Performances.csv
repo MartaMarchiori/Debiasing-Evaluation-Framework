@@ -1,6 +1,0 @@
-,CLF Original,CLF Original Blind,CLF Mitigated,CLF Mitigated Blind,Best Score,Delta O-OB,Delta M-MB,Delta O-M,Delta OB-MB
-Accuracy,0.74,0.74,0.757,0.73,CLF Mitigated,0.0,0.027,0.017,0.01
-Precision,0.624,0.575,0.661,0.569,CLF Mitigated,0.049,0.092,0.037,0.006
-Recall,0.304,0.337,0.336,0.301,CLF Original Blind,0.033,0.035,0.032,0.036
-F1 Score,0.394,0.424,0.427,0.39,CLF Mitigated,0.03,0.036,0.032,0.034
-Discrimination,0.208,0.212,0.198,0.222,CLF Mitigated,0.003,0.024,0.01,0.01

@@ -1,0 +1,3 @@
+,CLF Original,CLF Original Blind,CLF Mitigated,CLF Mitigated Blind,Best Score,Delta O-OB,Delta M-MB,Delta O-M,Delta OB-MB
+F1 Score,0.661,0.683,0.512,0.667,CLF Original Blind,0.022,0.154,0.149,0.016
+Discrimination,0.213,0.123,-0.074,0.15,CLF Mitigated,0.089,0.224,0.286,0.027
