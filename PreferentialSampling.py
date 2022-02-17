@@ -51,7 +51,7 @@ def computeProbas(subset_X_train,clf):
   return probas_0, probas_1
 
 def Ranking(probas,D,Descending):
-  D = D.assign(Probas=probas) #Assumiamo come classe positiva Low
+  D = D.assign(Probas=probas)
   if Descending:
     sorted_df = D.sort_values(by='Probas', ascending=False)
   else:
@@ -88,30 +88,26 @@ def PreferentialSampling(target,protected,clf,blind,df,adClass,disClass,adAttr=N
 
     if adClass==0:
       if adAttr:
-        DN=(disAttr,d_counts_label_1[disAttr])#disClass)
-        FP=(adAttr,d_counts_label_0[adAttr])#adClass)
-        DP=(disAttr,d_counts_label_0[disAttr])#adClass)
-        FN=(adAttr,d_counts_label_1[adAttr])#disClass)
+        DN=(disAttr,d_counts_label_1[disAttr])
+        FP=(adAttr,d_counts_label_0[adAttr])
+        DP=(disAttr,d_counts_label_0[disAttr])
+        FN=(adAttr,d_counts_label_1[adAttr])
       else: 
         DN=findMostFrequent(d_counts_label_1)
-        DP=(DN[0],d_counts_label_0[DN[0]])#findLessFrequent(d_counts_label_0) 
+        DP=(DN[0],d_counts_label_0[DN[0]]) 
         FP=findMostFrequent(d_counts_label_0,DN[0])
-        FN=(FP[0],d_counts_label_1[FP[0]])#findLessFrequent(d_counts_label_1)
+        FN=(FP[0],d_counts_label_1[FP[0]])
     else:
       if adAttr:
-        DN=(disAttr,d_counts_label_0[disAttr])#disClass)
-        FP=(adAttr,d_counts_label_1[adAttr])#adClass)
-        DP=(disAttr,d_counts_label_1[disAttr])#adClass)
-        FN=(adAttr,d_counts_label_0[adAttr])#disClass)
+        DN=(disAttr,d_counts_label_0[disAttr])
+        FP=(adAttr,d_counts_label_1[adAttr])
+        DP=(disAttr,d_counts_label_1[disAttr])
+        FN=(adAttr,d_counts_label_0[adAttr])
       else:
         DN=findMostFrequent(d_counts_label_0)
         DP=(DN[0],d_counts_label_1[DN[0]]) 
         FP=findMostFrequent(d_counts_label_1,DN[0])
         FN=(FP[0],d_counts_label_0[FP[0]])
-        #DN=findMostFrequent(d_counts_label_0)
-        #FP=findMostFrequent(d_counts_label_1)
-        #DP=findLessFrequent(d_counts_label_1) 
-        #FN=findLessFrequent(d_counts_label_0)
     print('DN ',DN)
     print('FP ',FP)
     print('DP ',DP)
@@ -168,9 +164,9 @@ def PreferentialSampling(target,protected,clf,blind,df,adClass,disClass,adAttr=N
         DN_df = Ranking(DN_probas,DN_df,True)
         DN_df=DN_df.reset_index()
         DN_df=DN_df.drop(['index'], 1)
-        DN_expected = expected['DN']#expectedSize(df[df[DN[0]].eq(1)],df[df['score_text'].eq(1)],df)
+        DN_expected = expected['DN']
         print('DN_expected ',DN_expected)
-        DN_df=underSampling(DN_df,DN_expected) #DN_df=DN_df.drop(df.index[:DN_expected])     # UnderSampling of DN and FP = remove top 
+        DN_df=underSampling(DN_df,DN_expected) 
         print('Len DN_df after sampling ',len(DN_df)) 
     else: 
         print('-- > DN_df empty < --')
@@ -183,9 +179,9 @@ def PreferentialSampling(target,protected,clf,blind,df,adClass,disClass,adAttr=N
         FP_df = Ranking(FP_probas,FP_df,False)
         FP_df=FP_df.reset_index()
         FP_df=FP_df.drop(['index'], 1)
-        FP_expected = expected['FP']#expectedSize(df[df[FP[0]].eq(1)],df[df['score_text'].eq(0)],df)
+        FP_expected = expected['FP']
         print('FP_expected ',FP_expected)
-        FP_df=underSampling(FP_df,FP_expected) #FP_df=FP_df.drop(df.index[:FP_expected])     # UnderSampling of DN and FP = remove top 
+        FP_df=underSampling(FP_df,FP_expected) 
         print('Len FP_df after sampling ',len(FP_df)) 
     else: 
         print('-- > FP_df empty < --')
@@ -198,7 +194,7 @@ def PreferentialSampling(target,protected,clf,blind,df,adClass,disClass,adAttr=N
         DP_df = Ranking(DP_probas,DP_df,False)
         DP_df=DP_df.reset_index()
         DP_df=DP_df.drop(['index'], 1)
-        DP_expected = expected['DP']#expectedSize(df[df[DP[0]].eq(1)],df[df['score_text'].eq(0)],df)
+        DP_expected = expected['DP']
         print('DP_expected ',DP_expected)
         DP_df=overSampling(DP_df,DP_expected)
         print('Len DP_df after sampling ',len(DP_df)) 
@@ -213,7 +209,7 @@ def PreferentialSampling(target,protected,clf,blind,df,adClass,disClass,adAttr=N
         FN_df = Ranking(FN_probas,FN_df,True)
         FN_df=FN_df.reset_index()
         FN_df=FN_df.drop(['index'], 1)
-        FN_expected = expected['FN']#expectedSize(df[df[FN[0]].eq(1)],df[df['score_text'].eq(1)],df)
+        FN_expected = expected['FN']
         print('FN_expected ',FN_expected)
         FN_df=overSampling(FN_df,FN_expected)
         print('Len FN_df after sampling ',len(FN_df)) 
@@ -224,5 +220,5 @@ def PreferentialSampling(target,protected,clf,blind,df,adClass,disClass,adAttr=N
     df_new = pd.concat(frames)
     df_new=df_new.reset_index()
     df_new=df_new.drop(['index'], 1)
-    df_new=df_new.sample(frac = 1) #Shuffle 
+    df_new=df_new.sample(frac = 1) 
     return df_new

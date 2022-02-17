@@ -3,25 +3,6 @@ from PreferentialSampling import *
 
 clfs_=['CLF Original','CLF Original Blind','CLF Mitigated','CLF Mitigated Blind']
 
-'''
-def model_evaluation_orig_vs_mit(clfOriginal, clfOrigBlind, clfMitigated, clfMitigatedBling, X_test, X_test_blind, y_test, folds):       
-    modelOrig = cross_validate(clfOriginal, X_test, y_test, cv=folds, scoring=scoring)
-    modelOrigBlind = cross_validate(clfOrigBlind, X_test_blind, y_test, cv=folds, scoring=scoring)
-    modelMit = cross_validate(clfMitigated, X_test, y_test, cv=folds, scoring=scoring)
-    modelMitBlind = cross_validate(clfMitigatedBling, X_test_blind, y_test, cv=folds, scoring=scoring)
-    models=[modelOrig,modelOrigBlind,modelMit,modelMitBlind]
-    d={}
-    for i in range(len(models)):
-        l=[ 
-            models[i]['test_accuracy'].mean(),
-            models[i]['test_precision'].mean(),
-            models[i]['test_recall'].mean(),
-            models[i]['test_f1_score'].mean()
-        ]
-        d[clfs_[i]]=l
-    models_scores_table = pd.DataFrame(d,index=['Accuracy', 'Precision', 'Recall', 'F1 Score'])
-    return models_scores_table
-'''
 def model_evaluation_orig_vs_mit(clfOriginal, clfOrigBlind, clfMitigated, clfMitigatedBlind, X_test, X_test_blind, y_test, folds):       
     models=[clfOriginal, clfOrigBlind, clfMitigated, clfMitigatedBlind]
     scores=[]
@@ -46,34 +27,28 @@ def inputDiscrimination(df,target,protected_values,adClass,disClass,adAttr=None,
 
     if adClass==0:
       if adAttr:
-        DN=(disAttr,d_counts_label_1[disAttr])#disClass)
-        FP=(adAttr,d_counts_label_0[adAttr])#adClass)
-        DP=(disAttr,d_counts_label_0[disAttr])#adClass)
-        FN=(adAttr,d_counts_label_1[adAttr])#disClass)
+        DN=(disAttr,d_counts_label_1[disAttr])
+        FP=(adAttr,d_counts_label_0[adAttr])
+        DP=(disAttr,d_counts_label_0[disAttr])
+        FN=(adAttr,d_counts_label_1[adAttr])
       else: 
         DN=findMostFrequent(d_counts_label_1)
-        DP=(DN[0],d_counts_label_0[DN[0]])#findLessFrequent(d_counts_label_0) 
+        DP=(DN[0],d_counts_label_0[DN[0]]) 
         FP=findMostFrequent(d_counts_label_0,DN[0])
-        FN=(FP[0],d_counts_label_1[FP[0]])#findLessFrequent(d_counts_label_1)
+        FN=(FP[0],d_counts_label_1[FP[0]])
     else:
       if adAttr:
-        DN=(disAttr,d_counts_label_0[disAttr])#disClass)
-        FP=(adAttr,d_counts_label_1[adAttr])#adClass)
-        DP=(disAttr,d_counts_label_1[disAttr])#adClass)
-        FN=(adAttr,d_counts_label_0[adAttr])#disClass)
+        DN=(disAttr,d_counts_label_0[disAttr])
+        FP=(adAttr,d_counts_label_1[adAttr])
+        DP=(disAttr,d_counts_label_1[disAttr])
+        FN=(adAttr,d_counts_label_0[adAttr])
       else:
         DN=findMostFrequent(d_counts_label_0)
         DP=(DN[0],d_counts_label_1[DN[0]]) 
         FP=findMostFrequent(d_counts_label_1,DN[0])
         FN=(FP[0],d_counts_label_0[FP[0]])
-        #DN=findMostFrequent(d_counts_label_0)
-        #FP=findMostFrequent(d_counts_label_1)
-        #DP=findLessFrequent(d_counts_label_1) 
-        #FN=findLessFrequent(d_counts_label_0)
     return FP[0],DN[0]
 
-# Definition 2 (Discrimination in a classifier’s predictions) 
-# from https://link.springer.com/content/pdf/10.1007%2Fs10115-011-0463-8.pdf
 def Discrimination(df,target,positiveClass,fav,disf):
     #count of + in favoured over total favoured - count of + in disf over total disf
     count_pos_fav = len(df[df[fav].eq(1) & df[target].eq(positiveClass)])
@@ -89,26 +64,18 @@ def Classifiers(clfInput,param_grid,target,column_names,X_train,X_train_mod,X_tr
     print('Mitigated Train Dimension =',len(X_train_mod))
     print('Test Dimension =',len(X_test))
 
-    #rf = RandomForestClassifier()
-    #param_grid = {'n_estimators': [200, 500], 'max_features': ['auto', 'sqrt', 'log2'], 'max_depth' : [4,5,6,7,8], 'criterion' : ['gini', 'entropy'], 'bootstrap' : [True, False]}
     clf = RandomizedSearchCV(clfInput, param_grid, random_state=0)
     search = clf.fit(X_train, y_train)
     clfOrig = search.best_estimator_
 
-    #rf = RandomForestClassifier()
-    #param_grid = {'n_estimators': [200, 500], 'max_features': ['auto', 'sqrt', 'log2'], 'max_depth' : [4,5,6,7,8], 'criterion' : ['gini', 'entropy'], 'bootstrap' : [True, False]}
     clf = RandomizedSearchCV(clfInput, param_grid, random_state=0)
     search = clf.fit(X_train_mod, y_train_mod)
     clfMit = search.best_estimator_
 
-    #rf = RandomForestClassifier()
-    #param_grid = {'n_estimators': [200, 500], 'max_features': ['auto', 'sqrt', 'log2'], 'max_depth' : [4,5,6,7,8], 'criterion' : ['gini', 'entropy'], 'bootstrap' : [True, False]}
     clf = RandomizedSearchCV(clfInput, param_grid, random_state=0)
     search = clf.fit(X_train_blind, y_train)
     clfOrigBlind = search.best_estimator_
 
-    #rf = RandomForestClassifier()
-    #param_grid = {'n_estimators': [200, 500], 'max_features': ['auto', 'sqrt', 'log2'], 'max_depth' : [4,5,6,7,8], 'criterion' : ['gini', 'entropy'], 'bootstrap' : [True, False]}
     clf = RandomizedSearchCV(clfInput, param_grid, random_state=0)
     search = clf.fit(X_train_mod_blind, y_train_mod)
     clfMitBlind = search.best_estimator_
@@ -168,9 +135,8 @@ def Classifiers(clfInput,param_grid,target,column_names,X_train,X_train_mod,X_tr
     res.loc['Discrimination'] = discriminations
     res['Best Score'] = res.idxmax(axis=1)
 
-    #ChangeBestScore 4 Discrimination! Because we need the minimum value obtained 
     clfs=['CLF Original','CLF Original Blind','CLF Mitigated','CLF Mitigated Blind']
-    discs=res.loc['Discrimination'][clfs].values#.idxmin(axis=1) 
+    discs=res.loc['Discrimination'][clfs].values 
     idxmin = np.where(discs == np.amin(discs))[0][0]
     res.at['Discrimination','Best Score']=clfs[idxmin]
 
@@ -181,9 +147,8 @@ def Classifiers(clfInput,param_grid,target,column_names,X_train,X_train_mod,X_tr
 
     return clfOrig,clfOrigBlind,clfMit,clfMitBlind,res 
 
-def plotDisc(res):
+def plotDisc(res, path_res, name):
     markers=[".",">","p","*"]
-    #cmap = ListedColormap(['#d01c8b','#f1b6da','#b8e186','#4dac26'])
     i=0
     for x, y in zip(res.loc['F1 Score'][clfs_], res.loc['Discrimination'][clfs_]):
         plt.scatter(x, y, marker=markers[i])
@@ -191,5 +156,5 @@ def plotDisc(res):
     plt.xlabel('F1 Score')
     plt.ylabel('Discrimination')
     plt.legend(clfs_)
-    plt.savefig("F1Score.jpg")
+    plt.savefig(path_res+name+"F1Score.jpg")
     plt.show()

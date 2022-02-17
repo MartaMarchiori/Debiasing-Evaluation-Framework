@@ -61,21 +61,10 @@ def label_encode(df, columns, label_encoder=None):
     return df_le, label_encoder
 
 
-'''
-def label_decode(df, columns, label_encoder):
-    df_de = df.copy(deep=True)
-    for col in columns:
-        le = label_encoder[col]
-        df_de[col] = le.inverse_transform(df_de[col])
-    return df_de
-'''
-
 def prepare_german_dataset(filename, path_data, sensitive):
 
-    # Read Dataset
     df = pd.read_csv(path_data + filename, delimiter=',')
 
-    # Features Categorization
     columns = df.columns
     df.rename(columns = {'default':'target'}, inplace = True)
 
@@ -91,24 +80,35 @@ def prepare_german_dataset(filename, path_data, sensitive):
     
     df.drop(sensitive, axis=1, inplace=True)
 
+    discrete = non_sensitive
+    discrete.append('foreign_worker_no')
+    discrete.append('foreign_worker_yes')
+    discrete.append('target')
+    df_Discrete = df.loc[:, df.columns.isin(discrete)]
+    df_ToScale = df.loc[:, ~df.columns.isin(discrete)]
+    scaler = StandardScaler()
+
+    df_ToScale = scaler.fit_transform(df_ToScale)
+    df_ToScale = pd.DataFrame(df_ToScale)
+    df_ToScale.columns = range(0, df_ToScale.columns.size)
+    df_ToScale.columns = ['duration_in_month','credit_amount','age']
+    df = pd.concat([df_ToScale.reset_index(drop=True), df_Discrete.reset_index(drop=True)], axis= 1)
+    df
+
     return non_sensitive,df
 
 
 def prepare_adult_dataset(filename, path_data, sensitive):
 
-    # Read Dataset
     df = pd.read_csv(path_data + filename, delimiter=',', skipinitialspace=True)
 
-    # Remove useless columns
     del df['fnlwgt']
     del df['education-num']
 
-    # Remove Missing Values
     for col in df.columns:
         if '?' in df[col].unique():
             df[col][df[col] == '?'] = df[col].value_counts().index[0]
 
-    # Features Categorization
     columns = df.columns.tolist()
     columns = columns[-1:] + columns[:-1]
     df = df[columns]
@@ -133,7 +133,6 @@ def prepare_adult_dataset(filename, path_data, sensitive):
 
 def prepare_compass_dataset(filename, path_data, sensitive):
 
-    # Read Dataset
     df = pd.read_csv(path_data + filename, delimiter=',', skipinitialspace=True)
 
     df=df.loc[df['days_b_screening_arrest'] <= 30]
@@ -142,7 +141,6 @@ def prepare_compass_dataset(filename, path_data, sensitive):
     df=df.loc[df['c_charge_degree'] != "O"]   
     df=df.loc[df['score_text'] != 'N/A']
 
-    # LORE Prepro
     df['days_b_screening_arrest'] = np.abs(df['days_b_screening_arrest'])
     df['c_jail_out'] = pd.to_datetime(df['c_jail_out'])
     df['c_jail_in'] = pd.to_datetime(df['c_jail_in'])
@@ -224,6 +222,7 @@ def prepare_for_sampling(df,protected_values):
     df = df.assign(target=y_train)
 
     return X,Y,X_blind,X_train,X_test,y_train,y_test,df 
+
 
 def prepare_for_classification(df_new,X_train,X_test,column_names,protected_values,PS=False):
     df_new.rename(columns = {'target':'target'}, inplace = True) 

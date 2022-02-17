@@ -3,26 +3,18 @@ from PreferentialSampling import *
 
 # UnderSampling of DN and FP = remove top 
 def underSamplingUS(D,expected):
-    #D=D.sample(frac = 1) #Shuffle 
     toRemove = len(D)-expected
     print(toRemove,'to be removed')
     for i in range(toRemove):
         D=D.drop(D.sample(n=1).index)
-    return D#D.drop(D.index[:toRemove])     
+    return D    
 
 # OverSampling of DP and FN = duplicate top, move to bottom with duplicate 
 def overSamplingUS(D,expected):
-  #D=D.sample(frac = 1) #Shuffle 
   toAdd=expected-len(D)
   print(toAdd,'to add')
-  #lenD=len(D)
   for i in range(toAdd):
-    #index=random.randint(0, lenD)
-    D = D.append(D.sample(n=1), ignore_index = True)#(D.iloc[index], ignore_index = True)
-    #df_new=pd.concat([D.iloc[[index]]] * 1)
-    #D = D.drop(D.index[index])
-    #frames = [D, df_new]
-    #D = pd.concat(frames)
+    D = D.append(D.sample(n=1), ignore_index = True)
     D=D.reset_index()
     D=D.drop(['index'], 1)
   return D 
@@ -37,30 +29,26 @@ def UniformSampling(target,protected,df,adClass,disClass,adAttr=None,disAttr=Non
   
     if adClass==0:
       if adAttr:
-        DN=(disAttr,d_counts_label_1[disAttr])#disClass)
-        FP=(adAttr,d_counts_label_0[adAttr])#adClass)
-        DP=(disAttr,d_counts_label_0[disAttr])#adClass)
-        FN=(adAttr,d_counts_label_1[adAttr])#disClass)
+        DN=(disAttr,d_counts_label_1[disAttr])
+        FP=(adAttr,d_counts_label_0[adAttr])
+        DP=(disAttr,d_counts_label_0[disAttr])
+        FN=(adAttr,d_counts_label_1[adAttr])
       else: 
         DN=findMostFrequent(d_counts_label_1)
-        DP=(DN[0],d_counts_label_0[DN[0]])#findLessFrequent(d_counts_label_0) 
+        DP=(DN[0],d_counts_label_0[DN[0]])
         FP=findMostFrequent(d_counts_label_0,DN[0])
-        FN=(FP[0],d_counts_label_1[FP[0]])#findLessFrequent(d_counts_label_1)
+        FN=(FP[0],d_counts_label_1[FP[0]])
     else:
       if adAttr:
-        DN=(disAttr,d_counts_label_0[disAttr])#disClass)
-        FP=(adAttr,d_counts_label_1[adAttr])#adClass)
-        DP=(disAttr,d_counts_label_1[disAttr])#adClass)
-        FN=(adAttr,d_counts_label_0[adAttr])#disClass)
+        DN=(disAttr,d_counts_label_0[disAttr])
+        FP=(adAttr,d_counts_label_1[adAttr])
+        DP=(disAttr,d_counts_label_1[disAttr])
+        FN=(adAttr,d_counts_label_0[adAttr])
       else:
         DN=findMostFrequent(d_counts_label_0)
         DP=(DN[0],d_counts_label_1[DN[0]]) 
         FP=findMostFrequent(d_counts_label_1,DN[0])
         FN=(FP[0],d_counts_label_0[FP[0]])
-        #DN=findMostFrequent(d_counts_label_0)
-        #FP=findMostFrequent(d_counts_label_1)
-        #DP=findLessFrequent(d_counts_label_1) 
-        #FN=findLessFrequent(d_counts_label_0)
     print('DN ',DN)
     print('FP ',FP)
     print('DP ',DP)
@@ -112,9 +100,9 @@ def UniformSampling(target,protected,df,adClass,disClass,adAttr=None,disAttr=Non
         DN_df = DN_df.assign(target=Y_DN_df)        
         DN_df=DN_df.reset_index()
         DN_df=DN_df.drop(['index'], 1)
-        DN_expected = expected['DN']#expectedSize(df[df[DN[0]].eq(1)],df[df['score_text'].eq(1)],df)
+        DN_expected = expected['DN']
         print('DN_expected ',DN_expected)
-        DN_df=underSamplingUS(DN_df,DN_expected) #DN_df=DN_df.drop(df.index[:DN_expected])     # UnderSampling of DN and FP = remove top 
+        DN_df=underSamplingUS(DN_df,DN_expected)  
         print('Len DN_df after sampling ',len(DN_df)) 
     else: 
         print('-- > DN_df empty < --')
@@ -122,9 +110,9 @@ def UniformSampling(target,protected,df,adClass,disClass,adAttr=None,disAttr=Non
         FP_df = FP_df.assign(target=Y_FP_df)
         FP_df=FP_df.reset_index()
         FP_df=FP_df.drop(['index'], 1)
-        FP_expected = expected['FP']#expectedSize(df[df[FP[0]].eq(1)],df[df['score_text'].eq(0)],df)
+        FP_expected = expected['FP']
         print('FP_expected ',FP_expected)
-        FP_df=underSamplingUS(FP_df,FP_expected) #FP_df=FP_df.drop(df.index[:FP_expected])     # UnderSampling of DN and FP = remove top 
+        FP_df=underSamplingUS(FP_df,FP_expected) 
         print('Len FP_df after sampling ',len(FP_df)) 
     else: 
         print('-- > FP_df empty < --')
@@ -132,7 +120,7 @@ def UniformSampling(target,protected,df,adClass,disClass,adAttr=None,disAttr=Non
         DP_df = DP_df.assign(target=Y_DP_df)
         DP_df=DP_df.reset_index()
         DP_df=DP_df.drop(['index'], 1)
-        DP_expected = expected['DP']#expectedSize(df[df[DP[0]].eq(1)],df[df['score_text'].eq(0)],df)
+        DP_expected = expected['DP']
         print('DP_expected ',DP_expected)
         DP_df=overSamplingUS(DP_df,DP_expected)
         print('Len DP_df after sampling ',len(DP_df)) 
@@ -142,7 +130,7 @@ def UniformSampling(target,protected,df,adClass,disClass,adAttr=None,disAttr=Non
         FN_df = FN_df.assign(target=Y_FN_df)
         FN_df=FN_df.reset_index()
         FN_df=FN_df.drop(['index'], 1)
-        FN_expected = expected['FN']#expectedSize(df[df[FN[0]].eq(1)],df[df['score_text'].eq(1)],df)
+        FN_expected = expected['FN']
         print('FN_expected ',FN_expected)
         FN_df=overSamplingUS(FN_df,FN_expected)
         print('Len FN_df after sampling ',len(FN_df)) 
@@ -153,5 +141,5 @@ def UniformSampling(target,protected,df,adClass,disClass,adAttr=None,disAttr=Non
     df_new = pd.concat(frames)
     df_new=df_new.reset_index()
     df_new=df_new.drop(['index'], 1)
-    df_new=df_new.sample(frac = 1) #Shuffle 
+    df_new=df_new.sample(frac = 1) 
     return df_new

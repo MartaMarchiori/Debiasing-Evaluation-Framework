@@ -2,11 +2,9 @@ from Imports import *
            
 # https://towardsdatascience.com/machine-learning-classifiers-comparison-with-python-33149aecdbca
 def rankers_evaluation(ListOfRankers,RankersNames,X,y,folds):
-    # Perform cross-validation to each machine learning classifier
     CrossValidated=[]
     for i in range(len(ListOfRankers)):
         CrossValidated.append(cross_validate(ListOfRankers[i], X, y, cv=folds, scoring=scoring))
-    # Create a data frame with the models perfoamnce metrics scores
     d={}
     for i in range(len(CrossValidated)):
         l=[ 
@@ -17,7 +15,6 @@ def rankers_evaluation(ListOfRankers,RankersNames,X,y,folds):
         ]
         d[RankersNames[i]]=l
     models_scores_table = pd.DataFrame(d,index=['Accuracy', 'Precision', 'Recall', 'F1 Score'])
-    # Return models performance metrics scores data frame
     return models_scores_table
 
 def rankers(X,X_blind,Y):
@@ -29,7 +26,7 @@ def rankers(X,X_blind,Y):
     gnb = search.best_estimator_
     print(gnb)
 
-    gnbCalibrated = CalibratedClassifierCV(base_estimator=gnb) #For prediction, the base estimator, trained using all the data, is used
+    gnbCalibrated = CalibratedClassifierCV(base_estimator=gnb) 
     gnbCalibrated.fit(X, Y)
 
     lr=LogisticRegression()
@@ -39,7 +36,7 @@ def rankers(X,X_blind,Y):
     lr = search.best_estimator_
     print(lr)
 
-    lrCalibrated = CalibratedClassifierCV(base_estimator=lr) #For prediction, the base estimator, trained using all the data, is used
+    lrCalibrated = CalibratedClassifierCV(base_estimator=lr)
     lrCalibrated.fit(X, Y)
 
     rf = RandomForestClassifier()
@@ -49,11 +46,11 @@ def rankers(X,X_blind,Y):
     rf = search.best_estimator_
     print(rf)
 
-    rfCalibrated = CalibratedClassifierCV(base_estimator=rf) #For prediction, the base estimator, trained using all the data, is used
+    rfCalibrated = CalibratedClassifierCV(base_estimator=rf) 
     rfCalibrated.fit(X, Y)
 
     svc = SVC()
-    param_grid = {'C': [0.1,1], 'gamma': [1,0.1]}#, 'kernel': ['linear', 'rbf']}#, 'poly', 'sigmoid']}
+    param_grid = {'C': [0.1,1], 'gamma': [1,0.1]}
     clf = RandomizedSearchCV(svc, param_grid, random_state=0)
     search = clf.fit(X, Y)
     search.best_params_['probability']=True
@@ -61,7 +58,7 @@ def rankers(X,X_blind,Y):
     svc = SVC(**params)
     print(svc)
 
-    svcCalibrated = CalibratedClassifierCV(base_estimator=svc) #For prediction, the base estimator, trained using all the data, is used
+    svcCalibrated = CalibratedClassifierCV(base_estimator=svc) 
     svcCalibrated.fit(X, Y)
 
     ListOfRankers=[
@@ -89,7 +86,7 @@ def rankers(X,X_blind,Y):
     gnbBlind = search.best_estimator_
     print(gnbBlind)
 
-    gnbCalibratedBlind = CalibratedClassifierCV(base_estimator=gnbBlind) #For prediction, the base estimator, trained using all the data, is used
+    gnbCalibratedBlind = CalibratedClassifierCV(base_estimator=gnbBlind) 
     gnbCalibratedBlind.fit(X_blind, Y)
 
     lrBlind=LogisticRegression()
@@ -99,7 +96,7 @@ def rankers(X,X_blind,Y):
     lrBlind = search.best_estimator_
     print(lrBlind)
 
-    lrCalibratedBlind = CalibratedClassifierCV(base_estimator=lrBlind) #For prediction, the base estimator, trained using all the data, is used
+    lrCalibratedBlind = CalibratedClassifierCV(base_estimator=lrBlind) 
     lrCalibratedBlind.fit(X_blind, Y)
 
     rfBlind = RandomForestClassifier()
@@ -109,11 +106,11 @@ def rankers(X,X_blind,Y):
     rfBlind = search.best_estimator_
     print(rfBlind)
 
-    rfCalibratedBlind = CalibratedClassifierCV(base_estimator=rfBlind) #For prediction, the base estimator, trained using all the data, is used
+    rfCalibratedBlind = CalibratedClassifierCV(base_estimator=rfBlind) 
     rfCalibratedBlind.fit(X_blind, Y)
 
     svcBlind = SVC()
-    param_grid = {'C': [0.1,1], 'gamma': [1,0.1]}#, 'kernel': ['linear', 'rbf']}#, 'poly', 'sigmoid']}
+    param_grid = {'C': [0.1,1], 'gamma': [1,0.1]}
     clf = RandomizedSearchCV(svcBlind, param_grid, random_state=0)
     search = clf.fit(X_blind, Y)
     search.best_params_['probability']=True
@@ -121,7 +118,7 @@ def rankers(X,X_blind,Y):
     svcBlind = SVC(**params)
     print(svcBlind)
 
-    svcCalibratedBlind = CalibratedClassifierCV(base_estimator=svcBlind) #For prediction, the base estimator, trained using all the data, is used
+    svcCalibratedBlind = CalibratedClassifierCV(base_estimator=svcBlind) 
     svcCalibratedBlind.fit(X_blind, Y)
 
     ListOfRankersBlind=[
@@ -151,11 +148,9 @@ def rankers(X,X_blind,Y):
     AllRankers={}
     for i in range(len(ListOfAllRankers)):
         AllRankers[ListOfAllRankers[i]]=ListOfAllRankersNames[i]
-    #AllRankers={gnb: 'Gaussian Naive Bayes', gnbCalibrated: 'Calibrated Gaussian Naive Bayes', lr: 'Logistic Regression', lrCalibrated: 'Calibrated Logistic Regression', rf: 'Random Forest', rfCalibrated: 'Calibrated Random Forest', svc: 'Support Vector Classifier', svcCalibrated: 'Calibrated Support Vector Classifier',
-    #            gnbBlind: 'Blind Gaussian Naive Bayes', gnbCalibratedBlind: 'Blind Calibrated Gaussian Naive Bayes', lrBlind: 'Blind Logistic Regression', lrCalibratedBlind: 'Blind Calibrated Logistic Regression', rfBlind: 'Blind Random Forest', rfCalibratedBlind: 'Blind Calibrated Random Forest', svcBlind: 'Blind Support Vector Classifier', svcCalibratedBlind: 'Blind Calibrated Support Vector Classifier'}
     new_ke_lis = list(AllRankers.keys())
     new_val = list(AllRankers.values())
-    new_pos = new_val.index(m_e['Best Score'].mode()[0]) # value from dictionary
+    new_pos = new_val.index(m_e['Best Score'].mode()[0]) 
     ranker = new_ke_lis[new_pos]
     print('------> Best Ranker: ',m_e['Best Score'].mode()[0])
     blind = False 

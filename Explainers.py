@@ -4,7 +4,7 @@ def LIME(clfs,column_names,class_names,X_train,X_train_mod,X_test,protected_valu
     def predict_proba_blind(X):
         X = pd.DataFrame(X, columns=column_names)
         X = X.drop(protected_values, axis=1)
-        return clf.predict_proba(X.values) #clf.predict_proba(np.delete(X, [5,6,7,8,9,10], 1))
+        return clf.predict_proba(X.values) 
     lime_v={}
     feature_names=column_names
     np.random.seed(1)
@@ -25,7 +25,6 @@ def LIME(clfs,column_names,class_names,X_train,X_train_mod,X_test,protected_valu
         kmeans = KMeans(init="k-means++", n_clusters=100).fit(X_train_current)
         kmeans.predict(X_train_current)
         med = kmeans.cluster_centers_
-        #explainer = lime.lime_tabular.LimeTabularExplainer(X_train_current.values,class_names=class_names, feature_names = feature_names,
         explainer = lime.lime_tabular.LimeTabularExplainer(med,class_names=class_names, feature_names = feature_names,
                                                            kernel_width=3, verbose=False)
         temp = []
@@ -48,7 +47,7 @@ def SHAP(clfs,column_names,X_train,X_train_mod,X_test,protected_values,changeRef
     def predict_proba_blind(X):
         X = pd.DataFrame(X, columns=column_names)
         X = X.drop(protected_values, axis=1)
-        return clf.predict_proba(X.values) #clf.predict_proba(np.delete(X, [5,6,7,8,9,10], 1))
+        return clf.predict_proba(X.values) 
     shap_v={}
     for k,v in clfs.items():
         clf=v
@@ -62,17 +61,14 @@ def SHAP(clfs,column_names,X_train,X_train_mod,X_test,protected_values,changeRef
                 kmeans = KMeans(init="k-means++", n_clusters=100).fit(X_train)
                 kmeans.predict(X_train)
                 med = kmeans.cluster_centers_
-                #med = X_train.median().values.reshape((1,X_train.shape[1]))
             else:
                 kmeans = KMeans(init="k-means++", n_clusters=100).fit(X_train_mod)
                 kmeans.predict(X_train_mod)
                 med = kmeans.cluster_centers_
-                #med = X_train_mod.median().values.reshape((1,X_train_mod.shape[1]))
         else:
             kmeans = KMeans(init="k-means++", n_clusters=100).fit(X_train)
             kmeans.predict(X_train)
             med = kmeans.cluster_centers_
-            #med = X_train.median().values.reshape((1,X_train.shape[1]))
         if Tree:
             explainer = shap.Explainer(clf)
         else:
@@ -156,28 +152,9 @@ def computeE(XAI_v,column_names):
         XAI.loc[t[0]+'-'+t[1]] = [round(m,3)]
     return XAI
 
-'''
-def computeE(XAI_v):
-    clfs={'clfOrig':0,'clfMit':0,'clfOrigBlind':0,'clfMitBlind':0}
-#    per e, aggregare ad un numero: 
-#        accorpiamo somma contributi di tutti gli attributi di quel record  
-#        media della sommatoria di sopra 
-    for c in clfs.keys():
-        s=[]
-        for i in range(len(XAI_v[c])):
-            s.append(XAI_v[c].iloc[i].sum())
-        meanOfSum = (np.absolute(s).sum())/len(XAI_v[c])
-        clfs[c]=meanOfSum
-    return clfs
-'''
-
 def XAIPlots(XAI_v,column_names,diffClfs=True,XAI_v_2=None):
-    markers=[
-    ".",">","^","<","p","*","o","s","*","+","D","|","_","X","d","h","H",
-    ".",">","^","<","p","*","o","s","*","+","D","|","_","X","d","h","H",
-    ".",">","^","<","p","*","o","s","*","+","D","|","_","X","d","h","H",
-    ".",">","^","<","p","*","o","s","*","+","D","|","_","X","d","h","H" 
-    ]
+    markers = [".",",","o","v","^","<",">","1","2","3","4","8","s","p","P","*","h","H","+","x","X","D","d","|","_"]
+    sampledMarkers = random.choices(markers, k=len(column_names))
     if diffClfs:
         tuples=[
         ['clfOrig','clfOrigBlind'],
@@ -194,9 +171,9 @@ def XAIPlots(XAI_v,column_names,diffClfs=True,XAI_v_2=None):
     for t in tuples:
         for col in column_names:
             if diffClfs:
-                plt.scatter(XAI_v[t[0]][col], XAI_v[t[1]][col], s=15, alpha=0.3, marker=markers[i])
+                plt.scatter(XAI_v[t[0]][col], XAI_v[t[1]][col], s=15, alpha=0.3, marker=sampledMarkers[i])
             else:
-                plt.scatter(XAI_v[t[0]][col], XAI_v_2[t[1]][col], s=15, alpha=0.3, marker=markers[i])
+                plt.scatter(XAI_v[t[0]][col], XAI_v_2[t[1]][col], s=15, alpha=0.3, marker=sampledMarkers[i])
             i+=1
             plt.xlabel(t[0])
             plt.ylabel(t[1])
