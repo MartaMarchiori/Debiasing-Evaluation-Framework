@@ -7,4 +7,10 @@ A key dimension of the framework concerns comparing classifiers trained on datas
 We analyze the behavior of local model-agnostic explainers on the original and mitigated datasets to examine whether the proxy models learned by the explainability techniques to mimic the black-boxes disproportionately rely on sensitive attributes, demonstrating biases rooted in the explainers. 
 We conduct several experiments about known biased datasets to demonstrate our proposal’s novelty and effectiveness for evaluation and bias detection purposes. 
 
-> Marta Marchiori Manerba and Riccardo Guidotti. "Investigating Debiasing Effects on Classification and Explainability". AIES, 2022.
+> Marta Marchiori Manerba and Riccardo Guidotti. "Investigating Debiasing Effects on Classification and Explainability". [AIES, 2022](https://www.aies-conference.com/2022/).
+
+Bibtex for citations:
+
+```
+TBD
+```
